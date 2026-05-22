@@ -1,1 +1,75 @@
+# Clone YOLOv5
+!git clone https://github.com/ultralytics/yolov5
+
+# Masuk ke folder yolov5
+%cd yolov5
+
+# Install requirements
+!pip install -r requirements.txt
+
+-------------------------------------------------------
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+-------------------------------------------------------
+
+!cp -r /content/drive/MyDrive/dataset /content/
+
+-------------------------------------------------------
+
+import os
+from glob import glob
+
+label_folders = [
+    '/content/dataset/train/labels',
+    '/content/dataset/valid/labels'
+]
+
+for folder in label_folders:
+    label_files = glob(os.path.join(folder, '*.txt'))
+
+    for file in label_files:
+        new_lines = []
+
+        with open(file, 'r') as f:
+            lines = f.readlines()
+
+        for line in lines:
+            parts = line.strip().split()
+
+            # Semua class jadi 0
+            parts[0] = '0'
+
+            new_lines.append(" ".join(parts))
+
+        with open(file, 'w') as f:
+            f.write("\n".join(new_lines))
+
+print("Semua label berhasil diubah menjadi 1 class")
+
+-------------------------------------------------------
+
+%%writefile /content/dataset/data.yaml
+
+train: /content/dataset/train/images
+val: /content/dataset/valid/images
+
+nc: 1
+
+names:
+  0: sampah
+
+-------------------------------------------------------
+
+!python train.py \
+--img 832 \
+--batch 8 \
+--epochs 200 \
+--cache \
+--data /content/dataset/data.yaml \
+--weights yolov5l.pt \
+--project /content/drive/MyDrive/yolov5-training \
+--name sampahlanjut \
+--save-period 5
 
